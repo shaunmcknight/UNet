@@ -151,9 +151,9 @@ plt.plot(H["test_loss"], label="test_loss")
 plt.title("Training Loss on Dataset")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss")
-plt.legend(loc="lower left")
-plt.show()
+plt.legend(loc="upper right")
 plt.savefig(config.PLOT_PATH)
+plt.show()
 
 # serialize the model to disk
 torch.save(unet, config.MODEL_PATH)

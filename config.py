@@ -12,7 +12,8 @@ CURRENT_DIR = os.getcwd()
 
 # base path of the dataset
 DATASET_PATH = ('C:/Users/Shaun McKnight/OneDrive - University of Strathclyde/PhD/Data/segmentation/a_scan_noise_w_sementation_masks.npy')
-
+TEST_DATASET_PATHS = ('C:/Users/Shaun McKnight/OneDrive - University of Strathclyde/PhD/Data/segmentation/Experimental/ID018_test_dataset.npy', 
+                     'C:/Users/Shaun McKnight/OneDrive - University of Strathclyde/PhD/Data/segmentation/Experimental/ID018_test_dataset_maps.npy')
 # define the test split
 TEST_SPLIT = 0.10
 
@@ -31,7 +32,7 @@ NUM_LEVELS = 3
 # initialize learning rate, number of epochs to train for, and the
 # batch size
 INIT_LR = 0.001
-NUM_EPOCHS = 100 # was 40
+NUM_EPOCHS = 500 # 250 #100
 BATCH_SIZE = 32
 
 # define the input image dimensions
@@ -39,7 +40,7 @@ INPUT_IMAGE_WIDTH = 256 #128
 INPUT_IMAGE_HEIGHT = 256 #128
 
 # define threshold to filter weak predictions
-THRESHOLD = 0.05
+THRESHOLD = 0.5
 
 # define the path to the base output directory
 BASE_OUTPUT = "output"

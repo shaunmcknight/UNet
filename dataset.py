@@ -35,20 +35,18 @@ class SegmentationDataset(Dataset):
         return len(self.dataset)
     
 
-class ExperimentalDataset(Dataset):
+class ExperimentalDatasetTest(Dataset):
     def __init__(self, root, transforms=None):
         self.transform = transforms
-        self.files_defect = np.load(glob.glob(os.path.join(root, "exp_defect") + "/*.*")[0])
-        self.areas = "To be loaded"
-
-        print('Max ', np.amax(self.files_defect))
-        print('Min ', np.amin(self.files_defect))
-
+        self.files_defect = glob.glob(os.path.join(root) + "/*.*")
+        
     def __getitem__(self, index):
-        image = torch.from_numpy(self.files_defect[index])
+        image = cv2.imread((self.files_defect[index]), cv2.IMREAD_GRAYSCALE)
+        image = torch.from_numpy(image)
         image = image.unsqueeze(0)
         
-        area = self.areas # to be updated
+        area = (self.files_defect[index][44:])# to be updated
+        area = int(area[0])
         
         if self.transform != None:
             image = self.transform(image)
@@ -57,4 +55,25 @@ class ExperimentalDataset(Dataset):
 
     def __len__(self):
         return len(self.files_defect)
+
+
+class ExperimentalDataset(Dataset):
+    def __init__(self, root, transforms=None):
+        self.transform = transforms
+        self.dataset = np.load(root[0])
+        self.diameters = np.load(root[1])
+
+    def __getitem__(self, index):
+        image = torch.from_numpy(self.dataset[index])
+        diameter = (self.diameters[index])
+
+        image = image.unsqueeze(0)
+        
+        if self.transform != None:
+            image = self.transform(image)
+            
+        return image, diameter
+
+    def __len__(self):
+        return len(self.dataset)
 
