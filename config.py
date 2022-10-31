@@ -47,6 +47,9 @@ BASE_OUTPUT = "output"
 
 # define the path to the output serialized model, model training
 # plot, and testing image paths
-MODEL_PATH = os.path.join(CURRENT_DIR, BASE_OUTPUT, "unet_ut.pth")
 PLOT_PATH = os.path.join(CURRENT_DIR, BASE_OUTPUT, "plot.png")
 TEST_PATHS = os.path.join(CURRENT_DIR, BASE_OUTPUT, "test_paths.txt")
+
+def model_path(indx):
+    MODEL_PATH = os.path.join(CURRENT_DIR, BASE_OUTPUT, "epoch_{}_".format(indx) + "unet_ut.pth")
+    return MODEL_PATH

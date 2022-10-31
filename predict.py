@@ -4,7 +4,7 @@ Created on Sat Oct 22 14:35:43 2022
 
 @author: Shaun McKnight
 """
-from dataset import SegmentationDataset
+from dataset import SegmentationDataset, ExperimentalDataset
 from torchvision import transforms
 from sklearn.metrics import mean_squared_error
 
@@ -309,13 +309,18 @@ def scatter_diameter_compare_exp(results):
     db = [average_3_db, average_4_db, average_6_db, average_7_db, average_9_db]    
     
     plt.figure(figsize = (10,10))
-    plt.scatter(gt, pred)
-    plt.scatter(gt, db)
+    plt.scatter(gt, pred, marker='o')
+    plt.scatter(gt, db, marker='o')
     plt.xlim([0, 14])
     plt.ylim([0, 14])
-    plt.gca().plot([0, 1], [0, 1], transform=plt.gca().transAxes, ls='--')
+    plt.gca().plot([0, 1], [0, 1], transform=plt.gca().transAxes, ls='--', color = 'g')
+    plt.axline(xy1=(0, 0.5), slope=1, ls='--', color = 'grey')
+    plt.axline(xy1=(0, -0.5), slope=1, ls='--', color = 'grey')
+
     plt.legend(('UNet prediction ~ RMSE {}'.format(round(mean_squared_error(gt, pred),3)),
-                '6dB drop ~ RMSE {}'.format(round(mean_squared_error(gt, db),3))))
+                '6dB drop ~ RMSE {}'.format(round(mean_squared_error(gt, db),3)),
+                'Ground truth',
+                '+/- 0.5mm'))
     plt.xlabel('Ground truth defect radius (mm)')
     plt.ylabel('Predicted defect radius (mm)')
     plt.title("Experimental test segmentation results", size=30)
@@ -465,7 +470,7 @@ def eval_experimental(model, results):
             # pred_mask = (pred_mask > config.THRESHOLD) #* 255
             # pred_mask = pred_mask.cpu().detach()
             pred_mask = np.round(pred_mask.cpu().detach(), decimals=1)
-            
+            pred_mask[pred_mask > 0] = 1
             #detch results
             image = image.cpu().detach()
             
@@ -493,7 +498,8 @@ def eval_experimental(model, results):
 
 # load our model from disk and flash it to the current device
 print("[INFO] load up model...")
-unet = torch.load(config.MODEL_PATH).to(config.DEVICE)
+model_epoch = 180
+unet = torch.load(config.model_path(model_epoch)).to(config.DEVICE)
 
 #dict of results
 results = {
@@ -509,7 +515,10 @@ scatter_diameter(results)
 visualise_areas(results)
 
 # make predictions based on experimental data
-eval_experimental(unet, results)
+results = eval_experimental(unet, results)
+scatter_diameter_exp(results)
+scatter_diameter_compare_exp(results)
+visualise_areas_exp(results)
 
 #TODO:
     # plot defect sizings

@@ -28,7 +28,6 @@ class SegmentationDataset(Dataset):
 
         if self.transform != None:
             image = self.transform(image)
-        # print('Image shape ', np.shape(image))
         return (image, mask)
 
     def __len__(self):
@@ -45,7 +44,7 @@ class ExperimentalDatasetTest(Dataset):
         image = torch.from_numpy(image)
         image = image.unsqueeze(0)
         
-        area = (self.files_defect[index][44:])# to be updated
+        area = (self.files_defect[index][44:])
         area = int(area[0])
         
         if self.transform != None:
