@@ -38,14 +38,20 @@ def sampleDataImage(dataloader):
     plt.show()
     
 # define transformations
+# transforms_ = transforms.Compose([transforms.ToPILImage(),
+#  	transforms.Resize((config.INPUT_IMAGE_HEIGHT,
+# 		config.INPUT_IMAGE_WIDTH), interpolation=0), 
+#         transforms.RandomAffine(degrees = 0, scale = (0.8, 1.2)),
+# 	transforms.ToTensor()])
+
 transforms_ = transforms.Compose([transforms.ToPILImage(),
  	transforms.Resize((config.INPUT_IMAGE_HEIGHT,
-		config.INPUT_IMAGE_WIDTH)),
+		config.INPUT_IMAGE_WIDTH), interpolation=0),
 	transforms.ToTensor()])
 
 transforms_exp_ = transforms.Compose([transforms.ToPILImage(),
  	transforms.Resize((config.INPUT_IMAGE_HEIGHT,
-		config.INPUT_IMAGE_WIDTH), interpolation=0), 
+		config.INPUT_IMAGE_WIDTH), interpolation=0),
      transforms.ToTensor()])
 
 # create the train and test datasets
@@ -150,6 +156,7 @@ for e in tqdm(range(config.NUM_EPOCHS)):
         for i in range(len(experimentalDS)):
             x = experimentalDS[i][0].to(config.DEVICE, dtype=torch.float)
             diameter = experimentalDS[i][1]
+
 		# send the input to the device
             x = x.to(config.DEVICE)
             
@@ -171,7 +178,12 @@ for e in tqdm(range(config.NUM_EPOCHS)):
             pred = (pred.cpu().detach().numpy() > 0.1) #* 255
 
             # print(np.count_nonzero(pred))
-            pred_area = np.count_nonzero(pred)/(0.8*0.8*4**2)
+            # pred_area = np.count_nonzero(pred)/(0.8*0.8*4**2)
+            # pred_area = (np.count_nonzero(pred)*(0.8*0.8))/(4**2)
+            
+            pred_area = np.count_nonzero(pred)*(0.8**2)
+            pred_area = pred_area/(4**2)
+            
             # print(pred_area)
             pred_diameter = 2*np.sqrt(pred_area/math.pi)
             
@@ -219,23 +231,23 @@ plt.show()
 # torch.save(unet, config.MODEL_PATH)
 
 
-fig, ax1 = plt.subplots()
-plt.style.use("ggplot")
-ax1.set_xlabel('Epoch #')
-ax1.set_ylabel('Loss')
-ax1.plot(H["train_loss"], label="train_loss")
-ax1.plot(H["test_loss"], label="test_loss")
+# fig, ax1 = plt.subplots()
+# plt.style.use("ggplot")
+# ax1.set_xlabel('Epoch #')
+# ax1.set_ylabel('Loss')
+# ax1.plot(H["train_loss"], label="train_loss")
+# ax1.plot(H["test_loss"], label="test_loss")
 
-ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+# ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
-color = 'tab:blue'
-ax2.set_ylabel('Test radius MAE (mm)', color='g')  # we already handled the x-label with ax1
-ax2.plot(H["test_loss_exp"], label="test_loss_exp", color = 'g')
-ax2.tick_params(axis='y', labelcolor='g')
+# color = 'tab:blue'
+# ax2.set_ylabel('Test radius MAE (mm)', color='g')  # we already handled the x-label with ax1
+# ax2.plot(H["test_loss_exp"], label="test_loss_exp", color = 'g')
+# ax2.tick_params(axis='y', labelcolor='g')
 
-fig.tight_layout()  # otherwise the right y-label is slightly clipped
-plt.title('Training losses and test MAE')
-plt.show()
+# fig.tight_layout()  # otherwise the right y-label is slightly clipped
+# plt.title('Training losses and test MAE')
+# plt.show()
 
 
 fig, ax1 = plt.subplots(figsize=(10,5))
@@ -248,12 +260,14 @@ ax1.plot(H["test_loss"], label="test_loss")
 ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
 color = 'tab:blue'
-ax2.set_ylabel('Test radius MAE (mm)', color='g')  # we already handled the x-label with ax1
+ax2.set_ylabel('Test diameter MAE (mm)', color='g')  # we already handled the x-label with ax1
 ax2.plot(H["test_loss_exp"], label="test_loss_exp", color = 'g')
 ax2.tick_params(axis='y', labelcolor='g')
-ax2.set_ylim(0,20)
+ax2.set_ylim(0,5)
 
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.title('Training losses and test MAE')
 plt.savefig(config.PLOT_PATH, bbox_inches = 'tight')
 plt.show()
+
+print('Best performing network was iteration {} with {}'.format(np.argmin(H["test_loss_exp"]), H["test_loss_exp"][np.argmin(H["test_loss_exp"])]))
